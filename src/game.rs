@@ -11,14 +11,26 @@ use std::io::Write;
     //5. Séparer (Split) to implement later
 
 */
+
+#[derive(Clone, Debug, Copy)]
 pub enum Action {
     Draw,
     Stand,
     Double,
     Insurance,
 }
+impl Action {
+    pub fn into_index(&self) ->usize{
+        match self {
+            Action::Draw => 0,
+            Action::Stand => 1,
+            Action::Double => 2,
+            Action::Insurance => 3,
+        }
+    }
+}
 
-
+#[derive(Clone)]
 pub struct GameState {
     continue_game: bool,         // if the game is still ongoing
     player_cards: PackOfCards,   // cards of the player
@@ -38,7 +50,7 @@ impl GameState {
             packet: PackOfCards::init(),
             discard: PackOfCards::new(),
             insurance: false,
-            double: false,
+            double: false,         
         }
     }
 
@@ -56,6 +68,10 @@ impl GameState {
 
     pub fn get_player_cards(&self)->&PackOfCards {
         &self.player_cards
+    }
+
+    pub fn as_mut_ref(&mut self)->&mut Self {
+        self
     }
 
     pub fn get_croupier_first_card(&self) -> Option<&Card> {
@@ -153,7 +169,7 @@ impl GameState {
 
 }
 
-pub fn game(mut game_state: GameState,bet : f32) -> f32 {
+pub fn game(mut game_state: &mut GameState,bet : f32) -> f32 {
         let card = game_state.packet.pick().unwrap();
         println!(" you draw : {} ", &card);
         game_state.player_cards.add_card(card.clone());
@@ -191,7 +207,7 @@ pub fn game(mut game_state: GameState,bet : f32) -> f32 {
 
         match game_state.play(action) {
             Ok(new_state) => {
-                game_state = new_state;
+                *game_state = new_state;
                 println!("État mis à jour. Somme des cartes du joueur : {}", game_state.player_cards.sum());
                 println!("Points du croupier : {} ", game_state.croupier_cards.sum());
             }
