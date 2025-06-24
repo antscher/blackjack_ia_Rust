@@ -13,6 +13,7 @@ use std::io::Write;
 */
 
 #[derive(Clone, Debug, Copy)]
+#[derive(Eq, Hash, PartialEq)]
 pub enum Action {
     Draw,
     Stand,
@@ -32,13 +33,13 @@ impl Action {
 
 #[derive(Clone)]
 pub struct GameState {
-    continue_game: bool,         // if the game is still ongoing
-    player_cards: PackOfCards,   // cards of the player
-    croupier_cards: PackOfCards, // cards of the dealer
-    packet: PackOfCards,         // packet of cards that have not been played
-    discard: PackOfCards,        // packet of cards that have been played
-    insurance: bool,             // if the player has taken insurance
-    double: bool,                // if the player has doubled down
+    pub continue_game: bool,         // if the game is still ongoing
+    pub player_cards: PackOfCards,   // cards of the player
+    pub croupier_cards: PackOfCards, // cards of the dealer
+    pub packet: PackOfCards,         // packet of cards that have not been played
+    pub discard: PackOfCards,        // packet of cards that have been played
+    pub insurance: bool,             // if the player has taken insurance
+    pub double: bool,                // if the player has doubled down
 }
 
 impl GameState {
@@ -87,17 +88,17 @@ impl GameState {
         match action {
             Action::Draw => {
                 let card = new_state.packet.pick().unwrap();
-                dbg!(" you draw : {} ", &card);
+                // dbg!(" you draw : {} ", &card);
                 new_state.player_cards.add_card(card.clone());
                 new_state.discard.add_card(card.clone());
             }
             Action::Stand => {
                 new_state.continue_game = false;
-                dbg!("You stand");
+                // dbg!("You stand");
             }
             Action::Double => {
                 let card = new_state.packet.pick().unwrap();
-                dbg!(" you double and draw : {} ", &card);
+                // dbg!(" you double and draw : {} ", &card);
                 new_state.player_cards.add_card(card.clone());
                 new_state.discard.add_card(card.clone());
                 new_state.continue_game = false;
@@ -106,7 +107,7 @@ impl GameState {
             Action::Insurance => {
                 if (new_state.croupier_cards.get_card(0).unwrap().unwrap() == &1) && !new_state.insurance {
                     new_state.insurance = true;
-                    dbg!("You take insurance");
+                    // dbg!("You take insurance");
                 } else {
                     return Err("Impossible to take an insurance");
                 }
@@ -169,7 +170,7 @@ impl GameState {
 
 }
 
-pub fn game(mut game_state: &mut GameState,bet : f32) -> f32 {
+pub fn game(game_state: &mut GameState,bet : f32) -> f32 {
         let card = game_state.packet.pick().unwrap();
         println!(" you draw : {} ", &card);
         game_state.player_cards.add_card(card.clone());

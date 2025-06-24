@@ -74,7 +74,7 @@ impl PackOfCards {
         pack
     }
 
-    pub fn iterator(&self)->&Vec<Card> {
+    pub fn iterator(&self) -> &Vec<Card> {
         &self.pack_cards
     }
 
@@ -121,4 +121,3 @@ impl PackOfCards {
         total
     }
 }
-
