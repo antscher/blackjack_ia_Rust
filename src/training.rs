@@ -9,9 +9,8 @@ use std::fs::File;
 use std::io::Write;
 use dashmap::DashMap;   
 
-const EPSILON: f32 = 0.2;
-const ALPHA: f32 = 0.1;
-const GAMMA: f32 = 1.0;
+const ALPHA: f32 = 0.4;
+const GAMMA: f32 = 0.3;
 
 #[derive(Eq, Hash, PartialEq, Clone, Serialize, Debug)]
 pub struct State {
@@ -19,6 +18,7 @@ pub struct State {
     croupier_first_card: u8,
     insurance: bool,
 }
+
 
 impl State {
     pub fn from(game_state: &GameState) -> State {
@@ -64,13 +64,13 @@ impl QTable {
         self.states.insert(state, actions);
     }
 
-    pub fn get_best_action(&mut self, state: &State) -> Action {
+    pub fn get_best_action(&mut self, state: &State,epsilon : f32) -> Action {
         let mut rng = rand::thread_rng();
         let rd: f32 = rng.gen_range(0.0..1.0);
         if !self.states.contains_key(state) {
             self.add_state(state.clone());
         }
-        if rd < EPSILON && state.croupier_first_card == 1 && state.player_cards.len() == 2 && !state.insurance{
+        if rd < epsilon && state.croupier_first_card == 1 && state.player_cards.len() == 2 && !state.insurance{
             let mut rng_action = thread_rng();
             let actions_possible = [
                 Action::Draw,
@@ -79,7 +79,7 @@ impl QTable {
                 Action::Insurance,
             ];
             *actions_possible.choose(&mut rng_action).unwrap()
-        } else if rd < EPSILON {
+        } else if rd < epsilon {
             let mut rng_action = thread_rng();
             let actions_possible = [
                 Action::Draw,
@@ -143,7 +143,7 @@ impl QTable {
 
         if let Some(mut vec_mut) = self.states.get_mut(state) {
             let action_index = action.into_index();
-            vec_mut[action_index] += ALPHA * td_delta;
+            vec_mut[action_index] = (1.0-ALPHA)*vec_mut[action_index] + ALPHA * td_delta;
         }
     }
 
@@ -165,7 +165,7 @@ impl QTable {
         Ok(())
     }
 
-    pub fn trainnig_q(&mut self, game_state: &mut GameState, bet: f32) -> f32 {
+    pub fn trainnig_q(&mut self, game_state: &mut GameState, bet: f32,epsilon : f32) -> f32 {
         let card = game_state.packet.pick().unwrap();
         game_state.player_cards.add_card(card.clone());
         game_state.discard.add_card(card.clone());
@@ -183,7 +183,7 @@ impl QTable {
 
         while game_state.continue_game {
             let state = State::from(game_state);
-            let action = self.get_best_action(&state);
+            let action = self.get_best_action(&state,epsilon);
 
             map.insert(i, (Some(action), Some(state)));
             i += 1;

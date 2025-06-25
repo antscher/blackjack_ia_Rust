@@ -9,7 +9,7 @@ use std::time::Duration;
 use crate::training::QTable;
 
 const NB_ITERATIONS: u64 = 1_000_000;
-const NUM_THREADS: usize = 5;
+const NUM_THREADS: usize = 20;
 const SPINNER_FRAMES: &[&str] = &["|", "/", "-", "\\"];
 
 fn main() {
@@ -80,10 +80,12 @@ pub fn training_for_thread(
 )  {
     let mut avg_reward = 0.0;
     for per in 0..nb_iterations {
+            let percentage = nb_iterations as f32 *0.2;
         
+            let epsilon =  if  per < percentage as u64 {1.0 - (per as f32 / nb_iterations as f32) } else {0.1};
             let mut q = locker.lock().unwrap();
             let mut game_state = GameState::new();
-            let reward = q.trainnig_q(&mut game_state, 1.0);
+            let reward = q.trainnig_q(&mut game_state, 1.0,epsilon);
         
 
         // Mise à jour du pourcentage toutes les 100 itérations
