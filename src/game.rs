@@ -12,8 +12,7 @@ use std::io::Write;
 
 */
 
-#[derive(Clone, Debug, Copy)]
-#[derive(Eq, Hash, PartialEq)]
+#[derive(Clone, Debug, Copy, Eq, Hash, PartialEq)]
 pub enum Action {
     Draw,
     Stand,
@@ -21,7 +20,7 @@ pub enum Action {
     Insurance,
 }
 impl Action {
-    pub fn into_index(&self) ->usize{
+    pub fn into_index(&self) -> usize {
         match self {
             Action::Draw => 0,
             Action::Stand => 1,
@@ -51,7 +50,7 @@ impl GameState {
             packet: PackOfCards::init(),
             discard: PackOfCards::new(),
             insurance: false,
-            double: false,         
+            double: false,
         }
     }
 
@@ -67,11 +66,11 @@ impl GameState {
         }
     }
 
-    pub fn get_player_cards(&self)->&PackOfCards {
+    pub fn get_player_cards(&self) -> &PackOfCards {
         &self.player_cards
     }
 
-    pub fn as_mut_ref(&mut self)->&mut Self {
+    pub fn as_mut_ref(&mut self) -> &mut Self {
         self
     }
 
@@ -105,7 +104,9 @@ impl GameState {
                 new_state.double = true;
             }
             Action::Insurance => {
-                if (new_state.croupier_cards.get_card(0).unwrap().unwrap() == &1) && !new_state.insurance {
+                if (new_state.croupier_cards.get_card(0).unwrap().unwrap() == &1)
+                    && !new_state.insurance
+                {
                     new_state.insurance = true;
                     // dbg!("You take insurance");
                 } else {
@@ -113,78 +114,77 @@ impl GameState {
                 }
             }
         }
-        if new_state.player_cards.sum() >=21 {
-            new_state.continue_game = false;   
-            }
+        if new_state.player_cards.sum() >= 21 {
+            new_state.continue_game = false;
+        }
         Ok(new_state)
     }
 
+    pub fn results(&self, bet: f32) -> f32 {
+        let mut total: f32 = 0.0;
 
-    
-
-    pub fn results(&self, bet : f32)-> f32 {
-        let mut total : f32 = 0.0;
-
-        match (self.insurance, self.croupier_cards.sum()){
-            (true,21)=> total += bet/2.0,
-            (true,_)=> total -= bet/2.0,
-            _ => {},
-                
+        match (self.insurance, self.croupier_cards.sum()) {
+            (true, 21) => total += bet / 2.0,
+            (true, _) => total -= bet / 2.0,
+            _ => {}
         }
-        match (self.croupier_cards.sum(),self.player_cards.sum(),self.double){
-            (_,21,true) =>{
-                total+= bet *3.0;
-                },
-            (_,21,false) => {
-                total += bet *1.5;
-            },
-            (_, player_point,true) if player_point >21  =>{
-                total -=bet*2.0;
+        match (
+            self.croupier_cards.sum(),
+            self.player_cards.sum(),
+            self.double,
+        ) {
+            (_, 21, true) => {
+                total += bet * 3.0;
             }
-            (_, player_point,false) if player_point >21  =>{
-                total -=bet;
+            (_, 21, false) => {
+                total += bet * 1.5;
             }
-            (croupier_point,_,true) if croupier_point >21 => {
-                total +=bet*2.0;
+            (_, player_point, true) if player_point > 21 => {
+                total -= bet * 2.0;
             }
-            (croupier_point,_,false) if croupier_point >21 => {
-                total +=bet;
+            (_, player_point, false) if player_point > 21 => {
+                total -= bet;
             }
-            (croupier_point, player_point,true) if croupier_point > player_point=> {
-                total-=bet *2.0;
-            },
-            (croupier_point, player_point,true) if croupier_point < player_point =>{
+            (croupier_point, _, true) if croupier_point > 21 => {
                 total += bet * 2.0;
-            },
-            (croupier_point, player_point,false) if croupier_point > player_point => {
-                total-=bet;
-            },
-            (croupier_point, player_point,false) if croupier_point < player_point =>{
+            }
+            (croupier_point, _, false) if croupier_point > 21 => {
                 total += bet;
-            },
-            _ => {}            
+            }
+            (croupier_point, player_point, true) if croupier_point > player_point => {
+                total -= bet * 2.0;
+            }
+            (croupier_point, player_point, true) if croupier_point < player_point => {
+                total += bet * 2.0;
+            }
+            (croupier_point, player_point, false) if croupier_point > player_point => {
+                total -= bet;
+            }
+            (croupier_point, player_point, false) if croupier_point < player_point => {
+                total += bet;
+            }
+            _ => {}
         }
 
         total
     }
-
 }
 
-pub fn game(game_state: &mut GameState,bet : f32) -> f32 {
-        let card = game_state.packet.pick().unwrap();
-        println!(" you draw : {} ", &card);
-        game_state.player_cards.add_card(card.clone());
-        game_state.discard.add_card(card.clone());
+pub fn game(game_state: &mut GameState, bet: f32) -> f32 {
+    let card = game_state.packet.pick().unwrap();
+    println!(" you draw : {} ", &card);
+    game_state.player_cards.add_card(card.clone());
+    game_state.discard.add_card(card.clone());
 
-        let card = game_state.packet.pick().unwrap();
-        println!(" you draw : {} ", &card);
-        game_state.player_cards.add_card(card.clone());
-        game_state.discard.add_card(card.clone());
+    let card = game_state.packet.pick().unwrap();
+    println!(" you draw : {} ", &card);
+    game_state.player_cards.add_card(card.clone());
+    game_state.discard.add_card(card.clone());
 
-        let card = game_state.packet.pick().unwrap();
-        println!(" croupier draw : {} ", &card);
-        game_state.croupier_cards.add_card(card.clone());
-        game_state.discard.add_card(card.clone());
+    let card = game_state.packet.pick().unwrap();
+    println!(" croupier draw : {} ", &card);
+    game_state.croupier_cards.add_card(card.clone());
+    game_state.discard.add_card(card.clone());
 
     while game_state.continue_game {
         println!("Choisissez une action : draw, stand, double, insurance");
@@ -209,7 +209,10 @@ pub fn game(game_state: &mut GameState,bet : f32) -> f32 {
         match game_state.play(action) {
             Ok(new_state) => {
                 *game_state = new_state;
-                println!("État mis à jour. Somme des cartes du joueur : {}", game_state.player_cards.sum());
+                println!(
+                    "État mis à jour. Somme des cartes du joueur : {}",
+                    game_state.player_cards.sum()
+                );
                 println!("Points du croupier : {} ", game_state.croupier_cards.sum());
             }
             Err(e) => {
@@ -218,9 +221,12 @@ pub fn game(game_state: &mut GameState,bet : f32) -> f32 {
         }
     }
 
-    println!("Fin de la partie. Somme finale des cartes joueur : {}", game_state.player_cards.sum());
+    println!(
+        "Fin de la partie. Somme finale des cartes joueur : {}",
+        game_state.player_cards.sum()
+    );
 
-    while game_state.croupier_cards.sum()<17{
+    while game_state.croupier_cards.sum() < 17 {
         let card = game_state.packet.pick().unwrap();
         println!(" Croupier drew : {} ", card);
         game_state.croupier_cards.add_card(card.clone());
