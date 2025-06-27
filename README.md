@@ -52,5 +52,11 @@ https://www.pokerstars.com/fr/casino/how-to-play/blackjack/premium/
 //to do
 
 
+## Collaborators 
+
+Mahel Rafes (https://github.com/moefijmqefijmejfmzcds/)
+
+Antoine Scherpereel (https://github.com/antscher/)
+
 ## License
 This project is for entertainment purposes. Feel free to use and modify it :)
