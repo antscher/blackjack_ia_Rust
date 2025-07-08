@@ -49,8 +49,9 @@ https://www.pokerstars.com/fr/casino/how-to-play/blackjack/premium/
 
 
 ## Results
-//to do
-
+- After training, the AI still loses most of the time. On average, it gets a score of -50 for every 1000 games played.
+- At the start, when the AI was just picking random moves, it did much worse, with a score of -600 for every 1000 games. Training with Q-learning helped the AI play better and lose less often.
+- This means the AI learned to make better choices, but the rules of the game still make it hard to win. If we change some rules or try different settings, the AI might do even better.
 
 ## Collaborators 
 
@@ -59,4 +60,4 @@ Mahel Rafes (https://github.com/moefijmqefijmejfmzcds/)
 Antoine Scherpereel (https://github.com/antscher/)
 
 ## License
-This project is for entertainment purposes. Feel free to use and modify it :)
+This project is protect by a licence but feel free to use it and to improve it ;)
