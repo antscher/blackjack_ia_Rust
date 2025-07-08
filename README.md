@@ -61,4 +61,4 @@ Antoine Scherpereel (https://github.com/antscher/)
 
 ## License
 This project is protect by a licence but feel free to use it and to improve it ;)
->>>>>>> two_actions
+
