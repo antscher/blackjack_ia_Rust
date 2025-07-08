@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-# blackjack_ia_Rust
-=======
 # BlackJack IA (Rust)
 
 ## Description
